@@ -1,29 +1,28 @@
 {
-    "manifest_version": 3,
-    "name": "Smart Screen Reader",
-    "version": "1.0",
-    "description": "A Chrome Extension To Take Screenshots",
-    "permissions": [
-        "activeTab",
-        "storage",
-        "tabs",
-        "desktopCapture"
-    ],
-    "action": {
-        "default_popup": "popup.html",
-        "default_icon": {
-            "16": "icons/Icon.png",
-            "48": "icons/Icon.png",
-            "128": "icons/Icon.png"
-        }
-    },
-    "icons": {
-        "16": "icons/Icon.png",
-        "48": "icons/Icon.png",
-        "128": "icons/Icon.png"
-    },
-    "host_permissions": [
-        "http://*/*",
-        "https://*/*"
-    ]
+  "manifest_version": 3,
+  "name": "ContextReader",
+  "version": "1.0",
+  "description": "Screenreader die de stem aanpast aan de sfeer van de website.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "options_page": "options.html",
+  "background": {
+    "service_worker": "background.js"
+  },
+"content_scripts": [
+  {
+    "matches": ["<all_urls>"],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }
+]
+
 }
+
