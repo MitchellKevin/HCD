@@ -62,5 +62,29 @@ Extra Info:
 
 Je moet kunnen laten pauzeren en snelheid kunnen verwisselen. Veel sneltoetsen gebruiken. Let op dat dingen niet dubbel klinkt, dit is verwarrend met een sr. Let op dat je de text van website in dezelfde taal laat voorlezen. Een beschrijving bij knoppen als het niet zo goed werkt. Meestal weet je niet waar je moet zijn dus start positie is een beetje nutteloos. Geen voorkeur voor een laptop of een telefoon. Extensions zijn redelijk goed te gebruiken. Visuele interfaces zijn kansloos. Behoorlijke frustatie als er geen controle is en hij het niet kan gebruiken. KNOPPEN MOETEN GEWOON GELABBELD WORDEN. Korte samenvatting van een website. Grootste irritaties is voor nu stemmen(maar is duur), visuele elementen omschrijvingen en niet gelabblede knoppen automatisch labbelen. Grootste kans ligt bij de stem. Moet wel vaak te gebruiken zijn, je moet er niet gek van worden, dus let daar goed op. Social media is het belangrijk dat je kan zien wat er op de plaatjes zijn, dus persoonlijk. Maar bijvoorbeeld bij opvulling plaatjes op websites is geen behoefte aan. (Albert Hein kan het fijn zijn dat je sfeer kan zien visueel gezien dus bijv de verpakking van een artikel.) De sfeer moet snel zijn liefst minder dan een halve minuut per webpagina. Plaatjes en layout zijn natuurlijk niet te zien en dit kan een oplossing zijn. Het is context specifiek dus je moet zelf kunnen bepalen of je de sfeer mee kan krijgen. Instellingen hoe gedetailleerd het moet, want voor iedereen is het anders. Wat versta je onder sfeer?.
 
+Speech Synthesis Markup Language (SSML) gebruiken ipv API call is leuker voor een prototype
+
+## Weekly nerd | Rosa
+Static site generators= Content + Template -> Compile -> Website (11ty)
+
+LAG SociaL evening elke vrijdag
+
+
 
 ### **User Test 2**
+Chrome externsion moet voor hem te gebruiken zijn, de snelheid moet dynamisch zijn hij moet de snelheid kunnen kiezen.
+
+Social media extension die afbeeldingen scant en omschrijft.
+
+Engels: Alice, Sander NL
+
+Meer details zoals de kleuren, hoe ziet de achtergrond eruit, wat is het weer etc. Dus niet alleen de sfeerbeeld maar ook hoe ziet het er verder uit
+
+Hoe lang moet een omschrijving zijn? Hangt heel erg van de foto af
+
+Link kan wel, maar screenshot niet
+
+Mogelijk een samenvatting van de tekst met ai
+
+
+
