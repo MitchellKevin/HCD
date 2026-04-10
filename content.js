@@ -4,7 +4,7 @@ let currentGenre = 'default';
 let audioContext = null;
 let currentSource = null;
 
-// 🔥 LIVE SPEED STATE (belangrijk)
+// LIVE SPEED STATE (belangrijk)
 let playbackRate = 1;
 
 // Pauzes per genre
@@ -80,7 +80,7 @@ async function playBase64Audio(base64) {
 
     currentSource.buffer = audioBuffer;
 
-    // 🔥 LIVE SPEED HERE
+    //  LIVE SPEED HERE
     currentSource.playbackRate.value = playbackRate;
 
     currentSource.connect(audioContext.destination);
@@ -192,7 +192,7 @@ chrome.runtime.onMessage.addListener((msg) => {
     startReading(currentGenre);
   }
 
-  // 🔥 LIVE SPEED UPDATE (NO RESTART REQUIRED)
+  //  LIVE SPEED UPDATE (NO RESTART REQUIRED)
   if (msg.type === 'SET_RATE') {
 
     playbackRate = msg.rate;
