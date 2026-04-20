@@ -1,25 +1,85 @@
-* {
-    font-family: 'Times New Roman';
-    text-align: center;
-}
-body {
-    height: 50rem;
-    width: 50rem;
-    padding: 1rem;
-}
-.button-box {
-    height: auto;
-    width: auto;
-}
-button {
-    border: none;
-    height: auto;
-    width: auto;
-    padding: 1rem;
-    background-color: rgb(50, 150, 50);
-    color: white;
-    cursor: pointer;
-}
-button:hover {
-    background-color: green;
-}
+    body {
+      font-family: system-ui, sans-serif;
+      width: 260px;
+      padding: 16px;
+      margin: 0;
+      background: #fff;
+      color: #1a1a1a;
+    }
+
+    h2 { font-size: 15px; margin: 0 0 12px; font-weight: 600; }
+
+    #genre-badge {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: #f0f0f0;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+
+    #genre-reden { font-size: 11px; color: #666; margin-bottom: 14px; }
+
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .knoppen {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    #btn-play { background: #1a1a1a; color: #fff; }
+    #btn-pause { background: #f0f0f0; color: #1a1a1a; }
+    #btn-stop { background: #fee2e2; color: #991b1b; }
+
+    #status {
+      font-size: 11px;
+      color: #888;
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    a {
+      font-size: 11px;
+      color: #888;
+      display: block;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    #btn-summary {
+      width: 100%;
+      padding: 7px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 12px;
+      cursor: pointer;
+      background: #f8f8f8;
+      color: #444;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    #shortcuts-hint {
+      font-size: 10px;
+      color: #aaa;
+      margin-top: 10px;
+      text-align: center;
+      line-height: 1.6;
+    }

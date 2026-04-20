@@ -2,12 +2,13 @@ let detectedGenre = 'default';
 let isPaused = false;
 let playbackRate = 1;
 
-const badge   = document.getElementById('genre-badge');
-const reden   = document.getElementById('genre-reden');
-const select  = document.getElementById('profiel-select');
+const badge       = document.getElementById('genre-badge');
+const reden       = document.getElementById('genre-reden');
+const select      = document.getElementById('profiel-select');
 const speedSelect = document.getElementById('speed-select');
+const btnSummary  = document.getElementById('btn-summary');
 
-const status  = document.getElementById('status');
+const statusEl = document.getElementById('status');
 const btnPlay  = document.getElementById('btn-play');
 const btnPause = document.getElementById('btn-pause');
 const btnStop  = document.getElementById('btn-stop');
@@ -41,6 +42,8 @@ chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
 
     const { title, meta, excerpt, url } = result.result;
 
+    window._pageData = { title, excerpt };
+
     chrome.runtime.sendMessage(
       { type: 'ANALYZE_PAGE', title, meta, excerpt, url },
       (response) => {
@@ -57,18 +60,49 @@ function getActiveProfile() {
   return val === 'auto' ? detectedGenre : val;
 }
 
+// SUMMARY
+btnSummary.addEventListener('click', () => {
+  const data = window._pageData;
+  if (!data) { statusEl.textContent = 'Pagina nog niet geladen.'; return; }
+
+  statusEl.textContent = 'Samenvatting ophalen…';
+  btnSummary.disabled = true;
+
+  chrome.runtime.sendMessage(
+    { type: 'SUMMARIZE_PAGE', title: data.title, excerpt: data.excerpt },
+    (response) => {
+      btnSummary.disabled = false;
+      const summary = response?.summary || 'Geen samenvatting beschikbaar.';
+      statusEl.textContent = '';
+
+      chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+        chrome.tabs.sendMessage(tab.id, {
+          type: 'START',
+          profile: getActiveProfile(),
+          rate: playbackRate,
+          summaryOnly: true,
+          summaryText: summary
+        });
+      });
+    }
+  );
+});
+
 // START
 btnPlay.addEventListener('click', () => {
   isPaused = false;
 
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+    // Sync selected genre to content script for keyboard shortcut use
+    chrome.tabs.sendMessage(tab.id, { type: 'SET_GENRE', genre: getActiveProfile() });
+
     chrome.tabs.sendMessage(tab.id, {
       type: 'START',
       profile: getActiveProfile(),
       rate: playbackRate
     });
 
-    status.textContent = 'Bezig met voorlezen…';
+    statusEl.textContent = 'Bezig met voorlezen…';
   });
 });
 
@@ -91,7 +125,7 @@ btnPause.addEventListener('click', () => {
 btnStop.addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
     chrome.tabs.sendMessage(tab.id, { type: 'STOP' });
-    status.textContent = '';
+    statusEl.textContent = '';
     btnPause.textContent = 'Pauze';
     isPaused = false;
   });
@@ -106,7 +140,7 @@ document.getElementById('link-options').addEventListener('click', (e) => {
 // klaar melding
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === 'READING_DONE') {
-    status.textContent = 'Klaar met voorlezen.';
+    statusEl.textContent = 'Klaar met voorlezen.';
   }
 });
 

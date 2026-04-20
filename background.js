@@ -61,6 +61,27 @@ async function fetchTTSAudio(text, genre, apiKey) {
   return btoa(binary);
 }
 
+// ── Page summary (Claude) ───────────────────────────────────────────────────
+
+async function summarizePage(text, claudeKey) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': claudeKey,
+      'anthropic-version': '2023-06-01'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 150,
+      system: `Je helpt een blinde gebruiker die een screenreader gebruikt. Vat de pagina samen in maximaal 2 zinnen. Spreek de gebruiker direct aan met "u". Geen extra tekst, alleen de samenvatting.`,
+      messages: [{ role: 'user', content: text }]
+    })
+  });
+  const data = await response.json();
+  return data.content?.[0]?.text || 'Geen samenvatting beschikbaar.';
+}
+
 // ── Context-analyse (Claude) ────────────────────────────────────────────────
 
 async function analyzeContext(summary, claudeKey) {
@@ -110,6 +131,25 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       } catch (e) {
         console.error('Claude fout:', e);
         sendResponse({ genre: 'default', reden: 'API-fout' });
+      }
+    });
+    return true;
+  }
+
+  // Paginasamenvatting via Claude
+  if (msg.type === 'SUMMARIZE_PAGE') {
+    chrome.storage.sync.get(['claudeKey'], async ({ claudeKey }) => {
+      if (!claudeKey) {
+        sendResponse({ summary: 'Geen Claude API-sleutel ingesteld.' });
+        return;
+      }
+      try {
+        const text    = `Titel: ${msg.title}\n\n${msg.excerpt}`;
+        const summary = await summarizePage(text, claudeKey);
+        sendResponse({ summary });
+      } catch (e) {
+        console.error('Samenvatting fout:', e);
+        sendResponse({ summary: 'Kon geen samenvatting maken.' });
       }
     });
     return true;

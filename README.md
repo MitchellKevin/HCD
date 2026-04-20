@@ -86,5 +86,11 @@ Link kan wel, maar screenshot niet
 
 Mogelijk een samenvatting van de tekst met ai
 
+'Het werkt goed!'
 
-
+TODO:
+* Beter testplan maken
+* Fake it om dieper te kunnen testen eerst later naar extension overzetten
+* TTS gebruiken ipv de ElevenLabs
+* Pitch bij versnelling vertragen
+* Extension toegankelijk gemaakt
