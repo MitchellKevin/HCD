@@ -14,12 +14,12 @@ const btnPause = document.getElementById('btn-pause');
 const btnStop  = document.getElementById('btn-stop');
 
 const GENRE_LABELS = {
-  horror: '👻 Horror',
-  nieuws: '📰 Nieuws',
-  tech: '💻 Tech',
-  fictie: '📖 Fictie',
-  poëzie: '✍️ Poëzie',
-  default: '💬 Neutraal'
+  horror: 'Horror',
+  nieuws: 'Nieuws',
+  tech: 'Tech',
+  fictie: 'Fictie',
+  poëzie: 'Poëzie',
+  default: 'Neutraal'
 };
 
 // SPEED STATE
