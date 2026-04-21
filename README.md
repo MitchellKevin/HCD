@@ -94,3 +94,20 @@ TODO:
 * TTS gebruiken ipv de ElevenLabs
 * Pitch bij versnelling vertragen
 * Extension toegankelijk gemaakt
+
+
+
+**User Test 4**
+* Pauzes zijn te lang tijdens het praten
+
+* Hij ondervond de menu's voor categorieen en snelheid
+* Samenvatting fijn, maar pakt nu gewoon de inleiding dit kan beter. Mss wat anders dan AI dan
+
+* Bug als je meerdere keren afspeeld
+* Keybinds werken niet
+* Samenvatting kan je niet stoppen
+* Kan ik niet zelf stem inspreken?
+
+**Voor nonsense:** Intresses: Reizen muziek sport, anime lezen
+
+**Extra info:**
