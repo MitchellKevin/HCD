@@ -31,12 +31,28 @@ speedSelect.addEventListener('change', () => {
 chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
   chrome.scripting.executeScript({
     target: { tabId: tab.id },
-    func: () => ({
-      title: document.title,
-      meta: document.querySelector('meta[name="description"]')?.content || '',
-      excerpt: document.body.innerText.slice(0, 600),
-      url: location.href
-    })
+    func: () => {
+      const skip = new Set(['nav','header','footer','aside','script','style','noscript']);
+      const blocks = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT, {
+        acceptNode(n) {
+          return skip.has(n.tagName.toLowerCase()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      let node;
+      while ((node = walker.nextNode())) {
+        if (['p','h2','h3','li','blockquote'].includes(node.tagName.toLowerCase())) {
+          const t = node.innerText?.trim();
+          if (t && t.length > 30) blocks.push(t);
+        }
+      }
+      return {
+        title: document.title,
+        meta: document.querySelector('meta[name="description"]')?.content || '',
+        excerpt: blocks.slice(0, 6).join(' ').slice(0, 800),
+        url: location.href
+      };
+    }
   }, ([result]) => {
     if (!result?.result) return;
 

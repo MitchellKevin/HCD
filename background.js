@@ -63,23 +63,12 @@ async function fetchTTSAudio(text, genre, apiKey) {
 
 // ── Page summary (Claude) ───────────────────────────────────────────────────
 
-async function summarizePage(text, claudeKey) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': claudeKey,
-      'anthropic-version': '2023-06-01'
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 150,
-      system: `Je helpt een blinde gebruiker die een screenreader gebruikt. Vat de pagina samen in maximaal 2 zinnen. Spreek de gebruiker direct aan met "u". Geen extra tekst, alleen de samenvatting.`,
-      messages: [{ role: 'user', content: text }]
-    })
-  });
-  const data = await response.json();
-  return data.content?.[0]?.text || 'Geen samenvatting beschikbaar.';
+function summarizePage(title, excerpt) {
+  const sentences = excerpt.match(/[^.!?]+[.!?]+/g) || [];
+  const first = sentences.slice(0, 2).join(' ').trim();
+  return first
+    ? `${title}. ${first}`
+    : title || 'Geen samenvatting beschikbaar.';
 }
 
 // ── Context-analyse (Claude) ────────────────────────────────────────────────
@@ -90,7 +79,8 @@ async function analyzeContext(summary, claudeKey) {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': claudeKey,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
@@ -136,22 +126,10 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return true;
   }
 
-  // Paginasamenvatting via Claude
+  // Paginasamenvatting (lokaal)
   if (msg.type === 'SUMMARIZE_PAGE') {
-    chrome.storage.sync.get(['claudeKey'], async ({ claudeKey }) => {
-      if (!claudeKey) {
-        sendResponse({ summary: 'Geen Claude API-sleutel ingesteld.' });
-        return;
-      }
-      try {
-        const text    = `Titel: ${msg.title}\n\n${msg.excerpt}`;
-        const summary = await summarizePage(text, claudeKey);
-        sendResponse({ summary });
-      } catch (e) {
-        console.error('Samenvatting fout:', e);
-        sendResponse({ summary: 'Kon geen samenvatting maken.' });
-      }
-    });
+    const summary = summarizePage(msg.title, msg.excerpt);
+    sendResponse({ summary });
     return true;
   }
 
