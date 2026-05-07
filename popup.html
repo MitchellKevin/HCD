@@ -2,51 +2,106 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-<link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="popup.css">
 </head>
-
 <body>
-  <h2>Human Voice Screen Reader</h2>
 
-  <div id="genre-badge">Analyseren…</div>
-  <div id="genre-reden"></div>
-
-  <select id="profiel-select">
-    <option value="auto">Automatisch (AI)</option>
-    <option value="default">Neutraal</option>
-    <option value="horror">Horror</option>
-    <option value="nieuws">Nieuws</option>
-    <option value="tech">Tech</option>
-    <option value="fictie">Fictie</option>
-    <option value="poëzie">Poëzie</option>
-  </select>
-
-  <!-- SPEED CONTROL (nieuw) -->
-  <select id="speed-select">
-    <option value="1">1x</option>
-    <option value="1.25">1.25x</option>
-    <option value="1.5">1.5x</option>
-    <option value="1.75">1.75x</option>
-    <option value="2">2x</option>
-    <option value="2.25">2.25x</option>
-    <option value="2.5">2.5x</option>
-  </select>
-
-  <button id="btn-summary">Hoor samenvatting</button>
-
-  <div class="knoppen">
-    <button id="btn-play">Voorlezen</button>
-    <button id="btn-pause">Pauze</button>
-    <button id="btn-stop">Stop</button>
+  <!-- Header -->
+  <div id="popup-header">
+    <div id="popup-brand">
+      <div id="popup-brand-icon" aria-hidden="true">◉</div>
+      VoiceReader
+    </div>
   </div>
 
-  <div id="status"></div>
-
-  <div id="shortcuts-hint">
-    Alt+Shift+R = start &nbsp;|&nbsp; Alt+Shift+P = pauze &nbsp;|&nbsp; Alt+Shift+S = stop
+  <!-- Genre detection -->
+  <div id="genre-section">
+    <div id="genre-row">
+      <div id="genre-badge" aria-live="polite" aria-atomic="true">Analyseren…</div>
+      <div id="ai-badge" aria-hidden="true">AI</div>
+    </div>
+    <div id="genre-reden" aria-live="polite"></div>
   </div>
 
-  <a href="#" id="link-options">API-sleutel instellen</a>
+  <!-- Controls -->
+  <div id="controls-section">
+    <div class="control-row">
+      <label class="control-label" for="profiel-select">Inhoudstype</label>
+      <select id="profiel-select" aria-label="Selecteer inhoudstype">
+        <option value="auto">Automatisch (AI)</option>
+        <option value="default">Neutraal</option>
+        <option value="horror">Horror</option>
+        <option value="nieuws">Nieuws</option>
+        <option value="tech">Tech</option>
+        <option value="fictie">Fictie</option>
+        <option value="poëzie">Poëzie</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label class="control-label" for="stem-stijl-select">Stemstijl</label>
+      <select id="stem-stijl-select" aria-label="Selecteer stemstijl">
+        <option value="normaal">Normaal</option>
+        <option value="anime">Anime</option>
+        <option value="sport">Sport verslaggever</option>
+      </select>
+    </div>
+    <div class="control-row">
+      <label class="control-label" for="speed-select">Snelheid</label>
+      <select id="speed-select" aria-label="Selecteer afspeelsnelheid">
+        <option value="1">1×</option>
+        <option value="1.25">1.25×</option>
+        <option value="1.5">1.5×</option>
+        <option value="1.75">1.75×</option>
+        <option value="2">2×</option>
+        <option value="2.25">2.25×</option>
+        <option value="2.5">2.5×</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div id="progress-section">
+    <div id="progress-bar-track" aria-hidden="true">
+      <div id="progress-bar-fill" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Leesvoortgang"></div>
+    </div>
+    <div id="progress-label" aria-live="polite" aria-atomic="true">Niet actief</div>
+  </div>
+
+  <!-- Playback -->
+  <div id="playback-section">
+    <button id="btn-play" aria-label="Voorlezen starten vanaf het begin">
+      <span aria-hidden="true">▶</span> Voorlezen
+    </button>
+    <div class="secondary-btns">
+      <button id="btn-pause" aria-label="Pauzeren" disabled>
+        <span aria-hidden="true">⏸</span> Pauze
+      </button>
+      <button id="btn-stop" aria-label="Stoppen" disabled>
+        <span aria-hidden="true">⏹</span> Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div id="feedback-section">
+    <div id="waveform" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div id="status" role="status" aria-live="polite"></div>
+  </div>
+
+  <!-- Summary -->
+  <button id="btn-summary" aria-label="Hoor een samenvatting van de pagina">
+    <span aria-hidden="true">⚡</span> Hoor samenvatting
+  </button>
+
+  <!-- Footer -->
+  <div id="popup-footer">
+    <div id="shortcuts-hint">
+      <kbd>Alt+Shift+R</kbd> lezen &nbsp;·&nbsp; <kbd>Alt+Shift+P</kbd> pauze
+    </div>
+    <button id="link-options">API-sleutels instellen</button>
+  </div>
 
   <script src="popup.js"></script>
 </body>

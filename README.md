@@ -1,113 +1,459 @@
-# HCD
+# VoiceReader — Procesverslag
 
 ## Concept
-Een chrome extension bouwen met html en javascript. Die meer diepte geeft aan screen readers. Meerdere soorten stemmen, zodat je niet altijd dezelfde manier van praten krijgt, maar meer dynamisch. Bijvoorbeeld op een comedy website een stemmen die spreekt met een soort lachende manier van vertellen en bij een website over een horror verhaal, maar spanning wordt opgebouwd.
 
-<img width="1440" height="1312" alt="image" src="https://github.com/user-attachments/assets/d9e9f4e3-0e5d-4ea5-a081-e884216b38e1" />
-<img width="1440" height="3512" alt="image" src="https://github.com/user-attachments/assets/1eb629b2-edfb-48bd-bdac-ce10ceca3c97" />
+Een Chrome extension die een screenreader meer diepte geeft door de stem dynamisch aan te passen aan de sfeer en context van een webpagina. In plaats van één neutrale voorleesstem krijgt de gebruiker een stem die past bij de inhoud — een spannende toon bij horror, een zakelijke toon bij nieuws, of een expressieve toon bij fictie. De genre-detectie verloopt automatisch via AI, maar de gebruiker kan altijd zelf kiezen.
 
-## Daily Checkouts
-**Week 1 | Dag 1 | 30 Maart**
-Wat heb ik geleerd?:
-Ik heb vandaag geleerd hoe ik een chrome extension moet maken
+---
 
-Wat heb ik gedaan?:
-Ik heb een chrome extension gemaakt die functioneert als screen reader, waarmee je verschillende thema's/stemmen hebt om wat beter bij de context van de pagina kijkend naar de content. Ik heb ook realisticher stemmen geimporteerd van ElevenLabs.
+## Week 1
 
-Wat wil ik morgen doen?:
-Morgen hebben we het interview met Ihab en ben wel benieuwd wat zijn proces is bij een web pagina en wat hij voor oplossingen hij zelf voorzich ziet. Verder wil ik dat de de context van de website op basis van de content via een claude api kan worden bepaald wat voor stem er nodig is voor de juiste sfeer. Ipv dat de gebruiker zelf moet kiezen(wat nog steeds optioneel moet zijn). Verder moeten er nog meer functies bij komen, zodat de screen reader extension beter en makkelijker te besturen is.
+### Dag 1 — 30 maart
 
+**Wat heb ik gedaan?**  
+De basisstructuur van de Chrome extension gebouwd: manifest, popup, content script en background worker. ElevenLabs geïntegreerd voor realistische stemmen. De gebruiker kan handmatig een genre kiezen (horror, nieuws, tech, fictie, poëzie, neutraal) en de extension leest de pagina voor in de bijpassende stem en stijl.
 
-## User Test | Nuance
-### **User Test 1**
-Op welke websites loop je het vaakst vast?
-Bash
+**Problemen & oplossingen**
 
-Wanneer raak je de draad kwijt tijdens het luisteren?
-Slecht gelabbelde labels heel grote frustatie
+| Probleem | Oplossing |
+|---|---|
+| Extension laadde content script niet op bestaande tabbladen | `chrome.scripting.executeScript` aanroepen bij elke klik op Play, zodat het altijd aanwezig is |
+| ElevenLabs `speed` parameter werkte niet in `voice_settings` | `speed` staat los van `voice_settings` in de request body — apart meegegeven |
+| Audio speelde door elkaar als je snel op Play klikte | `stopReading()` aanroepen aan het begin van elke nieuwe sessie |
 
-Wat maakt een website vermoeiend om te gebriuken?
+**Content script injecteren bij elke play**
 
+```js
+// popup.js
+chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+  chrome.scripting.executeScript(
+    { target: { tabId: tab.id }, files: ['content.js'] }
+  );
+});
+```
 
-Wat is het meest frustrerende dat recent is gebeurd?
-Dat bedrijven het minimale doen, voorbeeld wat er was gebeurd dat een vriend van een studentenvereniging ging de app naar een app die niet toegankelijkheid terwijl ze daar juist voor pleiten.
+**ElevenLabs — `speed` buiten `voice_settings`**
 
-Mis je soms toon of context in hoe iets wordt voorgelezen?
-Ja
+```js
+// background.js
+body: JSON.stringify({
+  text,
+  model_id: 'eleven_multilingual_v2',
+  voice_settings: {
+    stability:        settings.stability,
+    similarity_boost: settings.similarity_boost,
+    style:            settings.style,
+    use_speaker_boost: true
+  },
+  speed: settings.speed  // ← los van voice_settings, anders wordt het genegeerd
+})
+```
 
-Op welke snelheid luister je meestal?
-Semi snel rond 2.5x
+**Schermafbeeldingen**
 
-Zou je expressie het waard vinden als dat betekent dat het iets trager wordt?
-Kan sneller
+<img width="1440" height="1312" alt="Eerste versie van de extension popup" src="https://github.com/user-attachments/assets/d9e9f4e3-0e5d-4ea5-a081-e884216b38e1" />
 
-Hoe weet je waar je bent op een pagina?
+---
 
+### Dag 2 — 31 maart
 
-Wat maakt een site "goed gestructureerd" voor jou?
-Juist gelabbeld
+**Wat heb ik gedaan?**  
+Interview afgenomen met Ihab (gebruiker met visuele beperking). Op basis van zijn feedback de Claude API geïntegreerd voor automatische genre-detectie: de extension analyseert nu de paginatekst en kiest zelf het meest passende genre. Pauze/hervat functionaliteit en snelheidsregeling toegevoegd.
 
-Wat doen websites verkeerd?
-Het minimale doen.
+**Problemen & oplossingen**
 
-Wat hebben developers eerder geprobeerd dat niet werkte?
+| Probleem | Oplossing |
+|---|---|
+| Claude API blokkeerde directe browser-aanroepen (CORS) | Header `anthropic-dangerous-direct-browser-access: true` meegeven |
+| Genre-detectie was traag en blokkeerde de UI | Detectie asynchroon uitvoeren en resultaat cachen op URL |
+| Pauze sloeg de positie niet op | `pausedBlockIndex` en `pausedSentenceIndex` bijhouden en doorgeven aan `startReading()` |
 
+**CORS-header voor directe Anthropic API aanroep**
 
-Waar irriteren "goedbedoelde" oplossingen je juist?
+```js
+// background.js
+const response = await fetch('https://api.anthropic.com/v1/messages', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-api-key': claudeKey,
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'  // ← verplicht in browser
+  },
+  body: JSON.stringify({ ... })
+});
+```
 
-Nvdea:
-Add-ons toegevoegd worden
+**Positie opslaan voor pauze/hervat**
 
-Extra Info:
+```js
+// content.js
+let pausedBlockIndex    = 0;
+let pausedSentenceIndex = 0;
 
-Je moet kunnen laten pauzeren en snelheid kunnen verwisselen. Veel sneltoetsen gebruiken. Let op dat dingen niet dubbel klinkt, dit is verwarrend met een sr. Let op dat je de text van website in dezelfde taal laat voorlezen. Een beschrijving bij knoppen als het niet zo goed werkt. Meestal weet je niet waar je moet zijn dus start positie is een beetje nutteloos. Geen voorkeur voor een laptop of een telefoon. Extensions zijn redelijk goed te gebruiken. Visuele interfaces zijn kansloos. Behoorlijke frustatie als er geen controle is en hij het niet kan gebruiken. KNOPPEN MOETEN GEWOON GELABBELD WORDEN. Korte samenvatting van een website. Grootste irritaties is voor nu stemmen(maar is duur), visuele elementen omschrijvingen en niet gelabblede knoppen automatisch labbelen. Grootste kans ligt bij de stem. Moet wel vaak te gebruiken zijn, je moet er niet gek van worden, dus let daar goed op. Social media is het belangrijk dat je kan zien wat er op de plaatjes zijn, dus persoonlijk. Maar bijvoorbeeld bij opvulling plaatjes op websites is geen behoefte aan. (Albert Hein kan het fijn zijn dat je sfeer kan zien visueel gezien dus bijv de verpakking van een artikel.) De sfeer moet snel zijn liefst minder dan een halve minuut per webpagina. Plaatjes en layout zijn natuurlijk niet te zien en dit kan een oplossing zijn. Het is context specifiek dus je moet zelf kunnen bepalen of je de sfeer mee kan krijgen. Instellingen hoe gedetailleerd het moet, want voor iedereen is het anders. Wat versta je onder sfeer?.
+function pauseReading() {
+  isPaused  = true;
+  isReading = false;
+  if (currentSource) { currentSource.stop(); currentSource = null; }
+}
 
-Speech Synthesis Markup Language (SSML) gebruiken ipv API call is leuker voor een prototype
+// Bij hervat: verder waar gestopt
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === 'RESUME') {
+    startReading(currentGenre, pausedBlockIndex, pausedSentenceIndex);
+  }
+});
+```
 
-## Weekly nerd | Rosa
-Static site generators= Content + Template -> Compile -> Website (11ty)
+**Caching van genre-analyse per URL**
 
-LAG SociaL evening elke vrijdag
+```js
+// background.js
+const cacheKey = 'cache_' + msg.url;
+const cached   = await chrome.storage.local.get(cacheKey);
+if (cached[cacheKey]) { sendResponse(cached[cacheKey]); return; }
 
+const result = await analyzeContext(summary, claudeKey);
+chrome.storage.local.set({ [cacheKey]: result });
+sendResponse(result);
+```
 
+**Weekreflectie**
 
-### **User Test 2**
-Chrome externsion moet voor hem te gebruiken zijn, de snelheid moet dynamisch zijn hij moet de snelheid kunnen kiezen.
+> *[Hier je eigen weekreflectie invullen]*
 
-Social media extension die afbeeldingen scant en omschrijft.
+---
 
-Engels: Alice, Sander NL
+## Week 2
 
-Meer details zoals de kleuren, hoe ziet de achtergrond eruit, wat is het weer etc. Dus niet alleen de sfeerbeeld maar ook hoe ziet het er verder uit
+### Dag 1
 
-Hoe lang moet een omschrijving zijn? Hangt heel erg van de foto af
+**Wat heb ik gedaan?**  
+User test 2 afgenomen. Op basis van de feedback een HTML-prototype gemaakt (los van de extension) zodat gebruikers sneller kunnen testen zonder de extension te hoeven installeren. Samenvattingsfunctie toegevoegd die de eerste zinnen voorleest.
 
-Link kan wel, maar screenshot niet
+**Problemen & oplossingen**
 
-Mogelijk een samenvatting van de tekst met ai
+| Probleem | Oplossing |
+|---|---|
+| Extension moeilijk te testen zonder installatie | Standalone HTML-prototype gemaakt met dezelfde functionaliteit |
+| Samenvatting pakte gewoon de eerste alinea | Eerste twee zinnen extraheren als tijdelijke oplossing, later vervangen door AI |
 
-'Het werkt goed!'
+**Lokale samenvatting (tijdelijke oplossing)**
 
-TODO:
-* Beter testplan maken
-* Fake it om dieper te kunnen testen eerst later naar extension overzetten
-* TTS gebruiken ipv de ElevenLabs
-* Pitch bij versnelling vertragen
-* Extension toegankelijk gemaakt
+```js
+// Eerste 2 zinnen uit de paginatekst als fallback
+const sentences = excerpt.match(/[^.!?]+[.!?]+/g) || [];
+const summary   = sentences.slice(0, 2).join(' ').trim() || title;
+```
 
+---
 
+### Dag 2
 
-**User Test 4**
-* Pauzes zijn te lang tijdens het praten
+**Wat heb ik gedaan?**  
+UI volledig opnieuw ontworpen als professioneel toegankelijkheidsproduct: design tokens, progress bar, waveform-animatie, ARIA-labels, WCAG 2.1 AA focus-stijlen en zinmarkering op de pagina terwijl er wordt voorgelezen. Stemstijlen toegevoegd (Anime, Sport verslaggever) naast de bestaande genre-stemmen.
 
-* Hij ondervond de menu's voor categorieen en snelheid
-* Samenvatting fijn, maar pakt nu gewoon de inleiding dit kan beter. Mss wat anders dan AI dan
+**Problemen & oplossingen**
 
-* Bug als je meerdere keren afspeeld
-* Keybinds werken niet
-* Samenvatting kan je niet stoppen
-* Kan ik niet zelf stem inspreken?
+| Probleem | Oplossing |
+|---|---|
+| Geen visuele feedback welke zin er wordt voorgelezen | `.hvsr-active` CSS-klasse op het actieve blok zetten en de pagina automatisch scrollen |
+| Knoppen hadden geen duidelijke uitgeschakelde staat | `disabled` attribuut beheren via `setReadingState('playing' \| 'paused' \| 'idle')` |
+| Geen voortgangsindicatie | Progress bar toegevoegd die bijhoudt hoeveel paragrafen al zijn voorgelezen |
 
-**Voor nonsense:** Intresses: Reizen muziek sport, anime lezen
+**Actief blok markeren en scrollen**
 
-**Extra info:**
+```js
+// content.js
+function setActiveBlock(el) {
+  document.querySelectorAll('.hvsr-active')
+    .forEach(e => e.classList.remove('hvsr-active'));
+  if (el) {
+    el.classList.add('hvsr-active');
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+```
+
+```css
+/* Geïnjecteerde stijl via content.js */
+.hvsr-active {
+  background: rgba(79, 70, 229, 0.07) !important;
+  border-radius: 6px !important;
+  outline: 2px solid rgba(79, 70, 229, 0.25) !important;
+  outline-offset: 5px !important;
+  transition: background 0.25s ease !important;
+}
+```
+
+**Button states via centrale functie**
+
+```js
+// popup.js
+function setReadingState(state) {
+  if (state === 'playing') {
+    btnPlay.disabled  = true;
+    btnPause.disabled = false;
+    btnStop.disabled  = false;
+    waveform.classList.add('active');
+  } else if (state === 'paused') {
+    btnPlay.disabled  = true;
+    waveform.classList.remove('active');
+    btnPause.innerHTML = '<span>▶</span> Verder';
+  } else {
+    btnPlay.disabled  = false;
+    btnPause.disabled = true;
+    btnStop.disabled  = true;
+    waveform.classList.remove('active');
+  }
+}
+```
+
+**Schermafbeeldingen**
+
+![Oude versie](image.png)
+![Nieuwe versie](image-1.png)
+
+**Weekreflectie**
+
+> *[Hier je eigen weekreflectie invullen]*
+
+---
+
+## Week 3
+
+### Dag 1
+
+**Wat heb ik gedaan?**  
+Bug gevonden waarbij audio van opeenvolgende afspeelsessies door elkaar speelde. Samenvatting omgezet van lokale extractie naar een echte AI-aanroep. Anthropic API-credits uitgeput — overgestapt op Google Gemini als gratis alternatief.
+
+**Problemen & oplossingen**
+
+| Probleem | Oplossing |
+|---|---|
+| Audio van oude sessie speelde door als je snel op Play klikte | `readingGeneration` teller toegevoegd — elke `stopReading()` verhoogt de teller, pending fetches die de teller niet meer herkennen worden genegeerd |
+| Anthropic API: credit balance te laag | Overgestapt op Google Gemini API (gratis tier, geen creditcard nodig) |
+| Gemini model-naam niet gevonden (`gemini-1.5-flash` op `v1`, `v1beta`) | `discoverGeminiModel()` gebouwd die automatisch de beschikbare modellen ophaalt en het beste kiest |
+| `system_instruction` veld gaf JSON-fout | Veld heet `systemInstruction` (camelCase) in de Gemini REST API |
+
+**Fix: overlappende audio via generatie-teller**
+
+```js
+// content.js
+let readingGeneration = 0;
+
+function stopReading() {
+  readingGeneration++;  // ← alle lopende fetches worden hiermee ongeldig
+  isReading = false;
+  if (currentSource) { currentSource.stop(); currentSource = null; }
+}
+
+async function speakSentence(text, genre) {
+  const gen = readingGeneration;  // vastleggen vóór de fetch
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: 'FETCH_AUDIO', text, genre }, async (response) => {
+      if (gen !== readingGeneration) { resolve(); return; }  // ← verouderde sessie, negeren
+      await playBase64Audio(response.base64);
+      resolve();
+    });
+  });
+}
+```
+
+**Gemini model automatisch ontdekken**
+
+```js
+// background.js
+let geminiModel = null;
+
+async function discoverGeminiModel(geminiKey) {
+  const res  = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`
+  );
+  const data = await res.json();
+  const models = (data.models || [])
+    .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+    .map(m => m.name.replace('models/', ''));
+
+  const preferred = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+  return preferred.find(p => models.includes(p)) || models[0] || null;
+}
+```
+
+**`systemInstruction` in camelCase — niet snake_case**
+
+```js
+// werkte niet
+body: JSON.stringify({
+  system_instruction: { parts: [{ text: systemPrompt }] },
+  ...
+})
+
+// correct
+body: JSON.stringify({
+  systemInstruction: { parts: [{ text: systemPrompt }] },
+  contents: [{ parts: [{ text: userMessage }] }],
+  generationConfig: { maxOutputTokens: maxTokens },
+})
+```
+
+**AI-samenvatting via Gemini**
+
+```js
+// background.js
+const summary = await geminiFetch(
+  geminiKey,
+  `Je bent een assistent die samenvattingen schrijft voor een voorlees-app.
+Schrijf een vloeiende gesproken samenvatting van 2 tot 3 zinnen in het Nederlands.
+Gebruik geen opsommingen, geen markdown, geen aanhalingstekens.
+Begin direct met de kern.`,
+  `Titel: ${msg.title}\n\n${msg.fullText}`,
+  220
+);
+```
+
+---
+
+### Dag 2
+
+**Wat heb ik gedaan?**  
+Alles van het HTML-prototype teruggebracht naar de Chrome extension: nieuwe popup-UI, content script met highlighting en voortgang, background worker met Gemini en volledige stemstijl-ondersteuning. Options-pagina bijgewerkt naar Gemini sleutel.
+
+**Problemen & oplossingen**
+
+| Probleem | Oplossing |
+|---|---|
+| Popup-stijlen pasten niet bij de extension-breedte | Popup vaste breedte van 316px, geen overlay nodig (popup is zelf de UI) |
+| Content script ontving geen voortgangsberichten | `chrome.runtime.sendMessage({ type: 'READING_PROGRESS' })` vanuit content script naar popup |
+| Stemstijl (anime/sport) werd niet doorgegeven vanuit popup | `stemStijl` meegeven in het `START` bericht en opslaan als `currentStemStijl` in content script |
+
+**Voortgang vanuit content script naar popup sturen**
+
+```js
+// content.js — in de leeslus
+chrome.runtime.sendMessage({
+  type: 'READING_PROGRESS',
+  blockIndex:  bi,
+  totalBlocks
+});
+
+// popup.js — ontvangen en progress bar updaten
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === 'READING_PROGRESS') {
+    const pct = Math.round(((msg.blockIndex + 1) / msg.totalBlocks) * 100);
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = `${msg.blockIndex + 1} van ${msg.totalBlocks}`;
+  }
+});
+```
+
+**Stemstijl meegeven via berichten**
+
+```js
+// popup.js
+chrome.tabs.sendMessage(tab.id, {
+  type:      'START',
+  profile:   getActiveProfile(),
+  stemStijl: stemStijlSelect.value,  // 'normaal' | 'anime' | 'sport'
+  rate:      playbackRate
+});
+
+// content.js
+let currentStemStijl = 'normaal';
+
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === 'START') {
+    currentStemStijl = msg.stemStijl || 'normaal';
+    startReading(msg.profile);
+  }
+});
+
+// background.js — juiste stem kiezen op basis van stijl
+const useStyle = stemStijl !== 'normaal' && VOICE_STYLE_IDS[stemStijl];
+const voiceId  = useStyle ? VOICE_STYLE_IDS[stemStijl] : VOICE_IDS[genre];
+const settings = useStyle ? VOICE_STYLE_SETTINGS[stemStijl] : VOICE_SETTINGS[genre];
+```
+
+**Weekreflectie**
+
+> *[Hier je eigen weekreflectie invullen]*
+
+---
+
+## User Tests
+
+### User Test 1 — Ihab (visuele beperking)
+
+**Datum:** Week 1, Dag 2
+
+**Vragen & antwoorden**
+
+| Vraag | Antwoord |
+|---|---|
+| Op welke websites loop je het vaakst vast? | Bash |
+| Wanneer raak je de draad kwijt tijdens het luisteren? | Slecht gelabelde elementen zijn de grootste frustratie |
+| Wat is het meest frustrerende dat recent is gebeurd? | Een studentenvereniging stapte over op een ontoegankelijke app, terwijl ze juist toegankelijkheid prediken |
+| Mis je soms toon of context in hoe iets wordt voorgelezen? | Ja |
+| Op welke snelheid luister je meestal? | Rond de 2.5× |
+| Zou je expressie het waard vinden als dat iets trager is? | Kan wel sneller |
+| Wat maakt een site "goed gestructureerd" voor jou? | Juist gelabeld |
+| Wat doen websites verkeerd? | Het minimale doen |
+
+**Belangrijkste inzichten**
+- Knoppen **moeten** gelabeld zijn — dit is de grootste pijnpunt
+- Sneltoetsen zijn essentieel, visuele interfaces zijn onbruikbaar
+- Korte samenvatting van een pagina is erg gewenst
+- Sfeerdetectie moet snel zijn (minder dan 30 seconden)
+- De gebruiker moet zelf kunnen bepalen hoe gedetailleerd de sfeer is
+- Dubbel voorgelezen content (bv. via extension én native reader) is verwarrend
+- Taal van de stem moet overeenkomen met de taal van de pagina
+
+**Designbeslissingen op basis van deze test**
+- Sneltoetsen toegevoegd: `Alt+Shift+R` (lezen), `Alt+Shift+P` (pauze), `Alt+Shift+S` (stop)
+- AI-samenvatting toegevoegd als aparte knop
+- Automatische genre-detectie zodat de gebruiker niet zelf hoeft te kiezen
+- Handmatige override behouden voor controle
+
+---
+
+### User Test 2
+
+**Datum:** Week 2, Dag 1
+
+**Bevindingen**
+- Chrome extension moet volledig met toetsenbord te bedienen zijn
+- Snelheid moet dynamisch instelbaar zijn
+- Suggestie: afbeeldingen scannen en omschrijven (sociale media use case)
+- Omschrijving van afbeeldingen: lengte hangt af van de foto
+- AI-samenvatting van tekst is gewenst
+- `'Het werkt goed!'`
+
+**Actiepunten na deze test**
+- Beter testplan opstellen
+- HTML-prototype maken om dieper te kunnen testen vóór extension
+- Pitch bij versnelling afvlakken
+- Extension zelf toegankelijk maken (ARIA)
+
+---
+
+### User Test 4
+
+**Datum:** Week 3
+
+**Bevindingen**
+- Pauzes tussen zinnen zijn te lang
+- Genre- en snelheidsmenu's werden gevonden en begrepen
+- Samenvatting is fijn, maar pakt nu de inleiding — kan beter met echte AI
+- Bug: als je meerdere keren afspeelt, speelt audio door elkaar
+- Sneltoetsen werkten niet
+- Samenvatting kon niet gestopt worden
+- Vraag: kan ik zelf een stem inspreken?
+- Idee: achtergrondmuziek per genre
+
+**Designbeslissingen op basis van deze test**
+- `readingGeneration` teller geïmplementeerd (fix overlappende audio)
+- AI-samenvatting via Gemini (geen lokale extractie meer)
+- Sneltoetsen gefixed in content script
+- Stop-knop werkt nu ook tijdens samenvatting
+
+<img width="1440" height="3512" alt="Uitgebreide paginaweergave van de extension" src="https://github.com/user-attachments/assets/1eb629b2-edfb-48bd-bdac-ce10ceca3c97" />

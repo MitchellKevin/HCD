@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Context Reader",
-  "version": "1.0",
-  "description": "Screenreader die de stem aanpast aan de sfeer van de website.",
+  "name": "VoiceReader",
+  "version": "2.0",
+  "description": "AI screenreader die de stem aanpast aan de sfeer van de pagina.",
   "permissions": [
     "activeTab",
     "storage",

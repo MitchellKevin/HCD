@@ -3,36 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <style>
-    body { font-family: system-ui, sans-serif; padding: 32px; max-width: 440px; }
-    h2   { font-size: 18px; margin-bottom: 6px; }
-    p.intro { font-size: 13px; color: #666; margin-bottom: 24px; }
-    .veld { margin-bottom: 20px; }
-    label { font-size: 13px; font-weight: 500; display: block; margin-bottom: 6px; }
+    :root {
+      --brand: #4f46e5;
+      --brand-alpha: rgba(79,70,229,0.1);
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --bg-subtle: #f8fafc;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      padding: 40px;
+      max-width: 460px;
+      margin: 0 auto;
+      color: var(--text);
+      background: #fff;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .brand-icon {
+      width: 32px; height: 32px;
+      background: var(--brand);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 16px;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.35);
+    }
+    h2 { font-size: 18px; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+    p.intro { font-size: 13px; color: var(--text-muted); margin: 10px 0 28px; line-height: 1.6; }
+    .veld { margin-bottom: 22px; }
+    label { font-size: 11px; font-weight: 700; display: block; margin-bottom: 6px; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
     input {
-      width: 100%; padding: 8px; border: 1px solid #ddd;
-      border-radius: 6px; font-size: 13px; box-sizing: border-box;
+      width: 100%; padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+      color: var(--text);
+      background: var(--bg-subtle);
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
-    .hint { font-size: 11px; color: #888; margin-top: 4px; }
+    input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-alpha); }
+    .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 5px; }
+    .hint a { color: var(--brand); text-decoration: none; }
+    .hint a:hover { text-decoration: underline; }
     button {
-      padding: 9px 22px; background: #1a1a1a; color: #fff;
-      border: none; border-radius: 6px; cursor: pointer; font-size: 13px;
+      padding: 10px 24px;
+      background: var(--text);
+      color: #fff;
+      border: none; border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      transition: background 0.15s;
     }
-    #msg { margin-top: 10px; font-size: 12px; color: green; }
+    button:hover { background: #1e293b; }
+    #msg { margin-top: 10px; font-size: 12px; color: #16a34a; font-weight: 600; }
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; border-radius: 4px; }
   </style>
 </head>
 <body>
-  <h2>Context Reader instellingen</h2>
-  <p class="intro">Beide sleutels worden alleen lokaal opgeslagen.</p>
+  <div class="header">
+    <div class="brand-icon">◉</div>
+    <h2>VoiceReader instellingen</h2>
+  </div>
+  <p class="intro">Sleutels worden versleuteld opgeslagen in Chrome sync storage — nooit gedeeld met derden.</p>
 
   <div class="veld">
-    <label>Anthropic API-sleutel (context-analyse)</label>
-    <input type="password" id="claude-key" placeholder="sk-ant-…">
-    <p class="hint">Aanvragen via <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
+    <label for="gemini-key">Google API-sleutel (Gemini)</label>
+    <input type="password" id="gemini-key" placeholder="AIza…" autocomplete="off" spellcheck="false">
+    <p class="hint">Gratis aanvragen via <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a> — geen creditcard nodig</p>
   </div>
 
   <div class="veld">
-    <label>ElevenLabs API-sleutel (stem)</label>
-    <input type="password" id="elevenlabs-key" placeholder="sk_…">
+    <label for="elevenlabs-key">ElevenLabs API-sleutel (stem)</label>
+    <input type="password" id="elevenlabs-key" placeholder="sk_…" autocomplete="off" spellcheck="false">
     <p class="hint">Aanvragen via <a href="https://elevenlabs.io" target="_blank">elevenlabs.io</a> — gratis tier: 10.000 tekens/maand</p>
   </div>
 

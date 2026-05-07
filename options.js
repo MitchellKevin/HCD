@@ -1,15 +1,15 @@
-chrome.storage.sync.get(['claudeKey', 'elevenLabsKey'], (data) => {
-  if (data.claudeKey)      document.getElementById('claude-key').value      = data.claudeKey;
-  if (data.elevenLabsKey)  document.getElementById('elevenlabs-key').value  = data.elevenLabsKey;
+chrome.storage.sync.get(['geminiKey', 'elevenLabsKey'], (data) => {
+  if (data.geminiKey)     document.getElementById('gemini-key').value      = data.geminiKey;
+  if (data.elevenLabsKey) document.getElementById('elevenlabs-key').value  = data.elevenLabsKey;
 });
 
 document.getElementById('opslaan').addEventListener('click', () => {
-  const claudeKey     = document.getElementById('claude-key').value.trim();
+  const geminiKey     = document.getElementById('gemini-key').value.trim();
   const elevenLabsKey = document.getElementById('elevenlabs-key').value.trim();
 
-  chrome.storage.sync.set({ claudeKey, elevenLabsKey }, () => {
+  chrome.storage.sync.set({ geminiKey, elevenLabsKey }, () => {
     const msg = document.getElementById('msg');
     msg.textContent = 'Opgeslagen!';
-    setTimeout(() => msg.textContent = '', 2000);
+    setTimeout(() => { msg.textContent = ''; }, 2000);
   });
 });
