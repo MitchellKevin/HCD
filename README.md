@@ -397,6 +397,8 @@ const settings = useStyle ? VOICE_STYLE_SETTINGS[stemStijl] : VOICE_SETTINGS[gen
 **Weeklijkse feedback**
 Fijn dat de prototype echt goed getest kan worden op de laptop zelf van Ihab, verder had ik moeite met nonsense toevoegen, ik had als idee om mogelijk de stemmen kon vormen naar intresses van Ihab; sport, reizen en anime. Dit vond de docent een goed idee gezien de stemmen nu niet zoveel zeggen.
 
+Eindversie:
+![alt text](image-2.png)
 ---
 
 ## User Tests
@@ -451,6 +453,35 @@ Fijn dat de prototype echt goed getest kan worden op de laptop zelf van Ihab, ve
 - HTML-prototype maken om dieper te kunnen testen vóór extension
 - Pitch bij versnelling afvlakken
 - Extension zelf toegankelijk maken (ARIA)
+
+---
+
+### User Test 3 — Project Manager (Philips Health)
+
+**Datum:** Week 3
+
+**Testpersoon**  
+Project Manager bij een gezondheidsdivisie van Philips, met dagelijkse betrokkenheid bij producten voor mensen met (visuele) beperkingen. Geen screenreader-gebruiker zelf, maar werkt structureel samen met eindgebruikers die dat wel zijn.
+
+**Bevindingen**
+
+| Observatie | Toelichting |
+|---|---|
+| API-kosten kunnen een drempel zijn | Claude heeft een betaald model — voor een gratis prototype beter een gratis alternatief zoeken |
+| Visuele uitstraling schiet tekort | De interface ziet er te technisch/kaal uit; mensen zonder beperking haken af voordat ze het proberen |
+| Toegankelijkheid en esthetiek sluiten elkaar niet uit | Goede toegankelijkheidstools zien er ook goed uit — anders past het niet bij de kwaliteitsstandaard van professionele producten |
+| Doelgroepbereik verbreden | Als de tool alleen aantrekkelijk is voor gebruikers met een beperking, wordt de adoptie beperkt; een aantrekkelijke UI nodigt ook anderen uit |
+
+**Belangrijkste inzichten**
+- Gemini als gratis alternatief voor Claude — vergelijkbare kwaliteit, geen creditcard of betaaltegoed nodig
+- De UI moet er professioneel uitzien zodat ook gebruikers zonder beperking de tool serieus nemen
+- Kwaliteit van de interface weerspiegelt de kwaliteit van het product — een slechte UI ondermijnt het vertrouwen, ook bij de primaire doelgroep
+- Inclusief ontwerpen betekent ook: niet afschrikken door een interface die er "gehandicapt" uitziet
+
+**Designbeslissingen op basis van deze test**
+- Overgestapt van Anthropic Claude naar Google Gemini (gratis tier, 1.500 verzoeken/dag)
+- Volledige UI herontworpen: design tokens, waveform-animatie, progress bar, consistente typografie, professioneel genoeg voor elke gebruiker
+- Kleurenpalet en spacing afgestemd op de kwaliteitsstandaard van bestaande enterprise-toegankelijkheidstools
 
 ---
 
