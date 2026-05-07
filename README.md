@@ -499,5 +499,3 @@ Project Manager bij een gezondheidsdivisie van Philips, met dagelijkse betrokken
 - AI-samenvatting via Gemini (geen lokale extractie meer)
 - Sneltoetsen gefixed in content script
 - Stop-knop werkt nu ook tijdens samenvatting
-
-<img width="1440" height="3512" alt="Uitgebreide paginaweergave van de extension" src="https://github.com/user-attachments/assets/1eb629b2-edfb-48bd-bdac-ce10ceca3c97" />
