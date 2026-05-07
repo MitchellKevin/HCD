@@ -8,10 +8,10 @@ Een Chrome extension die een screenreader meer diepte geeft door de stem dynamis
 
 ## Week 1
 
-### Dag 1 — 30 maart
+### Dag 1
 
 **Wat heb ik gedaan?**  
-De basisstructuur van de Chrome extension gebouwd: manifest, popup, content script en background worker. ElevenLabs geïntegreerd voor realistische stemmen. De gebruiker kan handmatig een genre kiezen (horror, nieuws, tech, fictie, poëzie, neutraal) en de extension leest de pagina voor in de bijpassende stem en stijl.
+Concept bedacht en de basisstructuur van de Chrome extension gebouwd: manifest, popup, content script en background worker. ElevenLabs geïntegreerd voor realistische stemmen. De gebruiker kan handmatig een genre kiezen (horror, nieuws, tech, fictie, poëzie, neutraal) en de extension leest de pagina voor in de bijpassende stem en stijl.
 
 **Problemen & oplossingen**
 
@@ -19,7 +19,6 @@ De basisstructuur van de Chrome extension gebouwd: manifest, popup, content scri
 |---|---|
 | Extension laadde content script niet op bestaande tabbladen | `chrome.scripting.executeScript` aanroepen bij elke klik op Play, zodat het altijd aanwezig is |
 | ElevenLabs `speed` parameter werkte niet in `voice_settings` | `speed` staat los van `voice_settings` in de request body — apart meegegeven |
-| Audio speelde door elkaar als je snel op Play klikte | `stopReading()` aanroepen aan het begin van elke nieuwe sessie |
 
 **Content script injecteren bij elke play**
 
@@ -55,10 +54,10 @@ body: JSON.stringify({
 
 ---
 
-### Dag 2 — 31 maart
+### Dag 2
 
 **Wat heb ik gedaan?**  
-Interview afgenomen met Ihab (gebruiker met visuele beperking). Op basis van zijn feedback de Claude API geïntegreerd voor automatische genre-detectie: de extension analyseert nu de paginatekst en kiest zelf het meest passende genre. Pauze/hervat functionaliteit en snelheidsregeling toegevoegd.
+Eerste user test afgenomen met Ihab (gebruiker met visuele beperking) — hij heeft het concept bekeken en feedback gegeven. Op basis van zijn feedback de Claude API toegevoegd voor automatische genre-detectie, pauze/hervat functionaliteit en snelheidsregeling.
 
 **Problemen & oplossingen**
 
@@ -118,9 +117,9 @@ chrome.storage.local.set({ [cacheKey]: result });
 sendResponse(result);
 ```
 
-**Weekreflectie**
+**Weeklijkse feedback**
 
-> *[Hier je eigen weekreflectie invullen]*
+Idee was weinig op aan te merken en klonk als een interessante oplossing voor het probleem met de standaard stemmen van de screen reader, jammer dat de ai functie nog niet werkte.
 
 ---
 
@@ -129,14 +128,29 @@ sendResponse(result);
 ### Dag 1
 
 **Wat heb ik gedaan?**  
-User test 2 afgenomen. Op basis van de feedback een HTML-prototype gemaakt (los van de extension) zodat gebruikers sneller kunnen testen zonder de extension te hoeven installeren. Samenvattingsfunctie toegevoegd die de eerste zinnen voorleest.
+De Chrome extension getest met Ihab, maar dan op mijn eigen computer omdat het niet lukte de extension extern te versturen. Ihab kon zo direct met de extension interacteren terwijl ik ernaast zat.
 
 **Problemen & oplossingen**
 
 | Probleem | Oplossing |
 |---|---|
-| Extension moeilijk te testen zonder installatie | Standalone HTML-prototype gemaakt met dezelfde functionaliteit |
-| Samenvatting pakte gewoon de eerste alinea | Eerste twee zinnen extraheren als tijdelijke oplossing, later vervangen door AI |
+| Extension kon niet gedeeld worden voor remote testing | Test uitgevoerd op mijn eigen laptop met Ihab fysiek aanwezig |
+| Pauzes tussen zinnen waren te lang | Pauze-waarden per genre verlaagd in de configuratie |
+| Sneltoetsen werkten niet altijd | Event listeners opnieuw geregistreerd bij elke content script injectie |
+
+---
+
+### Dag 2
+
+**Wat heb ik gedaan?**  
+Feedback van de test verwerkt. Samenvattingsfunctie toegevoegd en snelheidsregeling uitgebreid. Claude API nog niet werkend helaas.
+
+**Problemen & oplossingen**
+
+| Probleem | Oplossing |
+|---|---|
+| Samenvatting pakte gewoon de eerste alinea | Eerste twee zinnen extraheren als tijdelijke oplossing, later vervangen door echte AI |
+| Audio speelde door als je snel meerdere keren op Play klikte | `stopReading()` aanroepen aan het begin van elke nieuwe sessie |
 
 **Lokale samenvatting (tijdelijke oplossing)**
 
@@ -146,12 +160,37 @@ const sentences = excerpt.match(/[^.!?]+[.!?]+/g) || [];
 const summary   = sentences.slice(0, 2).join(' ').trim() || title;
 ```
 
+**Weeklijkse feedback**
+
+De docent vond de het prima, weinig nog op aan te merken en de samenvatting was wel een beetje saai zonder AI en de test moest beter gezien, doordat Ihab op mijn laptop werkte niet correct kan testen, docent suggereerde om een webpagina te maken zodat Ihab dit zelf kon testen.
+
+---
+
+## Week 3
+
+### Dag 1
+
+**Wat heb ik gedaan?**  
+Deze week was ik op de Smashing Conference en daardoor niet aanwezig bij de user test. Geen codeerwerk deze week.
+
 ---
 
 ### Dag 2
 
 **Wat heb ik gedaan?**  
-UI volledig opnieuw ontworpen als professioneel toegankelijkheidsproduct: design tokens, progress bar, waveform-animatie, ARIA-labels, WCAG 2.1 AA focus-stijlen en zinmarkering op de pagina terwijl er wordt voorgelezen. Stemstijlen toegevoegd (Anime, Sport verslaggever) naast de bestaande genre-stemmen.
+Teruggekomen van de conferentie en de testnotities doorgenomen. Voorbereidingen getroffen voor week 4: besloten om een standalone HTML-prototype te bouwen zodat Ihab zelfstandig kan testen zonder dat ik erbij hoef te zijn.
+
+**Weeklijkste feedback**
+Ging niet door wegens 'de web u want'
+
+---
+
+## Week 4
+
+### Dag 1
+
+**Wat heb ik gedaan?**  
+HTML-prototype gebouwd als losse pagina (buiten de extension) zodat Ihab het gewoon op zijn eigen laptop kon openen en testen. Volledige UI herontworpen als professioneel toegankelijkheidsproduct: design tokens, progress bar, waveform-animatie, ARIA-labels, WCAG 2.1 AA focus-stijlen en zinmarkering op de pagina terwijl er wordt voorgelezen. Stemstijlen toegevoegd (Anime, Sport verslaggever). Anthropic API-credits uitgeput — overgestapt op Google Gemini als gratis alternatief.
 
 **Problemen & oplossingen**
 
@@ -160,6 +199,10 @@ UI volledig opnieuw ontworpen als professioneel toegankelijkheidsproduct: design
 | Geen visuele feedback welke zin er wordt voorgelezen | `.hvsr-active` CSS-klasse op het actieve blok zetten en de pagina automatisch scrollen |
 | Knoppen hadden geen duidelijke uitgeschakelde staat | `disabled` attribuut beheren via `setReadingState('playing' \| 'paused' \| 'idle')` |
 | Geen voortgangsindicatie | Progress bar toegevoegd die bijhoudt hoeveel paragrafen al zijn voorgelezen |
+| Audio van oude sessie speelde door als je snel op Play klikte | `readingGeneration` teller toegevoegd |
+| Anthropic API: credit balance te laag | Overgestapt op Google Gemini API (gratis tier, geen creditcard nodig) |
+| Gemini model-naam niet gevonden (`gemini-1.5-flash` op `v1`, `v1beta`) | `discoverGeminiModel()` gebouwd die automatisch de beschikbare modellen ophaalt en het beste kiest |
+| `system_instruction` veld gaf JSON-fout | Veld heet `systemInstruction` (camelCase) in de Gemini REST API |
 
 **Actief blok markeren en scrollen**
 
@@ -208,33 +251,6 @@ function setReadingState(state) {
   }
 }
 ```
-
-**Schermafbeeldingen**
-
-![Oude versie](image.png)
-![Nieuwe versie](image-1.png)
-
-**Weekreflectie**
-
-> *[Hier je eigen weekreflectie invullen]*
-
----
-
-## Week 3
-
-### Dag 1
-
-**Wat heb ik gedaan?**  
-Bug gevonden waarbij audio van opeenvolgende afspeelsessies door elkaar speelde. Samenvatting omgezet van lokale extractie naar een echte AI-aanroep. Anthropic API-credits uitgeput — overgestapt op Google Gemini als gratis alternatief.
-
-**Problemen & oplossingen**
-
-| Probleem | Oplossing |
-|---|---|
-| Audio van oude sessie speelde door als je snel op Play klikte | `readingGeneration` teller toegevoegd — elke `stopReading()` verhoogt de teller, pending fetches die de teller niet meer herkennen worden genegeerd |
-| Anthropic API: credit balance te laag | Overgestapt op Google Gemini API (gratis tier, geen creditcard nodig) |
-| Gemini model-naam niet gevonden (`gemini-1.5-flash` op `v1`, `v1beta`) | `discoverGeminiModel()` gebouwd die automatisch de beschikbare modellen ophaalt en het beste kiest |
-| `system_instruction` veld gaf JSON-fout | Veld heet `systemInstruction` (camelCase) in de Gemini REST API |
 
 **Fix: overlappende audio via generatie-teller**
 
@@ -286,7 +302,6 @@ async function discoverGeminiModel(geminiKey) {
 // werkte niet
 body: JSON.stringify({
   system_instruction: { parts: [{ text: systemPrompt }] },
-  ...
 })
 
 // correct
@@ -311,6 +326,11 @@ Begin direct met de kern.`,
   220
 );
 ```
+
+**Schermafbeeldingen**
+
+![Oude versie](image.png)
+![Nieuwe versie](image-1.png)
 
 ---
 
@@ -374,9 +394,8 @@ const voiceId  = useStyle ? VOICE_STYLE_IDS[stemStijl] : VOICE_IDS[genre];
 const settings = useStyle ? VOICE_STYLE_SETTINGS[stemStijl] : VOICE_SETTINGS[genre];
 ```
 
-**Weekreflectie**
-
-> *[Hier je eigen weekreflectie invullen]*
+**Weeklijkse feedback**
+Fijn dat de prototype echt goed getest kan worden op de laptop zelf van Ihab, verder had ik moeite met nonsense toevoegen, ik had als idee om mogelijk de stemmen kon vormen naar intresses van Ihab; sport, reizen en anime. Dit vond de docent een goed idee gezien de stemmen nu niet zoveel zeggen.
 
 ---
 
@@ -429,7 +448,6 @@ const settings = useStyle ? VOICE_STYLE_SETTINGS[stemStijl] : VOICE_SETTINGS[gen
 - `'Het werkt goed!'`
 
 **Actiepunten na deze test**
-- Beter testplan opstellen
 - HTML-prototype maken om dieper te kunnen testen vóór extension
 - Pitch bij versnelling afvlakken
 - Extension zelf toegankelijk maken (ARIA)
@@ -438,7 +456,7 @@ const settings = useStyle ? VOICE_STYLE_SETTINGS[stemStijl] : VOICE_SETTINGS[gen
 
 ### User Test 4
 
-**Datum:** Week 3
+**Datum:** Week 4
 
 **Bevindingen**
 - Pauzes tussen zinnen zijn te lang
