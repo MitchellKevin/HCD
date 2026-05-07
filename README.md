@@ -47,11 +47,6 @@ body: JSON.stringify({
   speed: settings.speed  // ← los van voice_settings, anders wordt het genegeerd
 })
 ```
-
-**Schermafbeeldingen**
-
-<img width="1440" height="1312" alt="Eerste versie van de extension popup" src="https://github.com/user-attachments/assets/d9e9f4e3-0e5d-4ea5-a081-e884216b38e1" />
-
 ---
 
 ### Dag 2
@@ -330,7 +325,7 @@ Begin direct met de kern.`,
 **Schermafbeeldingen**
 
 ![Oude versie](image.png)
-![Nieuwe versie](image-1.png)
+![Nieuwe versie](image-2.png)
 
 ---
 
